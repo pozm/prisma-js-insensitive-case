@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Activity {
+  ID             String           @id @default(cuid())
+  UpdatedAt      DateTime         @default(now())
+  CreatedAt      DateTime         @default(now())
+  Name           String           @unique
+  UserId         String
+  User           User             @relation(fields: [UserId], references: [ID])
+  DeviceActivity DeviceActivity[]
+}
+
+model Device {
+  ID             String           @id @default(cuid())
+  Name           String           @unique
+  DeviceActivity DeviceActivity[]
+}
+
+model DeviceActivity {
+  ID         String    @id @default(cuid())
+  UpdatedAt  DateTime  @default(now())
+  CreatedAt  DateTime  @default(now())
+  ActivityId String?
+  DeviceId   String
+  Activity   Activity? @relation(fields: [ActivityId], references: [ID])
+  Device     Device    @relation(fields: [DeviceId], references: [ID])
+}
+
+model User {
+  ID       String     @id @default(cuid())
+  Name     String     @unique
+  ApiKey   String     @unique
+  Activity Activity[]
+}
